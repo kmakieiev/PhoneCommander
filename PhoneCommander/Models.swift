@@ -11,10 +11,6 @@ struct Contact: Identifiable, Hashable {
     var phone: String? {
         data["phone"] as? String
     }
-    
-    var dynamicFields: [String: String]? {
-        data["dynamicFields"] as? [String: String]
-    }
 
     static func == (lhs: Contact, rhs: Contact) -> Bool {
         lhs.id == rhs.id

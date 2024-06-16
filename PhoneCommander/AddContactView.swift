@@ -15,25 +15,23 @@ struct AddContactView: View {
     @State private var customFieldValue: String = ""
     
     var body: some View {
-        VStack {
-            HStack {
-                Text("Name")
-                TextField("Name", text: $name)
-                    .padding()
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-            }
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Add Contact")
+                .font(.title)
+                .padding(.bottom, 10)
             
-            HStack {
-                Text("Phone")
-                TextField("Phone", text: $phone)
-                    .padding()
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-            }
+            TextField("Name", text: $name)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+            
+            TextField("Phone", text: $phone)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
             
             ForEach(Array(dynamicFields.keys.sorted()), id: \.self) { key in
-                HStack {
+                HStack(spacing: 10) {
                     Text(key)
-                    TextField(key, text: Binding<String>(
+                        .frame(width: 100, alignment: .leading)
+                    
+                    TextField("", text: Binding<String>(
                         get: {
                             self.dynamicFields[key] ?? ""
                         },
@@ -41,7 +39,6 @@ struct AddContactView: View {
                             self.dynamicFields[key] = newValue
                         }
                     ))
-                    .padding()
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     
                     Button(action: {
@@ -51,10 +48,9 @@ struct AddContactView: View {
                             .foregroundColor(.red)
                     }
                 }
-                .padding(.horizontal)
             }
             
-            HStack {
+            HStack(spacing: 10) {
                 Picker(selection: $selectedFieldTypeIndex, label: Text("Add Field")) {
                     ForEach(0..<dynamicFieldTypes.count, id: \.self) { index in
                         Text(dynamicFieldTypes[index])
@@ -62,25 +58,28 @@ struct AddContactView: View {
                     }
                 }
                 .pickerStyle(MenuPickerStyle())
-                .padding()
+                .frame(width: 150)
                 
                 if dynamicFieldTypes[selectedFieldTypeIndex] == "Custom" {
-                    TextField("Field Name", text: $customFieldName)
-                        .padding()
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                    
-                    TextField("Field Value", text: $customFieldValue)
-                        .padding()
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                    VStack(alignment: .leading, spacing: 5) {
+                        TextField("Field Name", text: $customFieldName)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                        
+                        TextField("Field Value", text: $customFieldValue)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                    }
+                    .frame(width: 200)
                 }
                 
                 Button(action: {
                     addCustomField()
                 }) {
                     Label("Add Field", systemImage: "plus.circle")
-                        .padding()
                 }
+                .buttonStyle(BorderlessButtonStyle())
             }
+            
+            Spacer()
             
             Button(action: {
                 saveContact()
@@ -91,8 +90,11 @@ struct AddContactView: View {
                     .foregroundColor(.white)
                     .cornerRadius(8)
             }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 20)
         }
         .padding()
+        .frame(width: 400, height: 350)
     }
     
     private func addCustomField() {
@@ -128,5 +130,11 @@ struct AddContactView: View {
             let newContact = Contact(id: UUID().uuidString, data: newContactData)
             onSave(newContact)
         }
+    }
+}
+
+struct AddContactView_Previews: PreviewProvider {
+    static var previews: some View {
+        AddContactView(contact: .constant(nil), onSave: { _ in })
     }
 }
