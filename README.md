@@ -25,8 +25,8 @@ This is a Contact Management System built with a Node.js backend using Express a
 1. Clone the repository:
 
     ```sh
-    git clone https://github.com/your-username/contact-management-system.git
-    cd contact-management-system
+    git clone https://github.com/kmakieiev/PhoneCommander.git
+    cd PhoneCommander
     ```
 
 2. Install the required Node.js packages:
