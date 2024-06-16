@@ -1,5 +1,5 @@
 
-# Contact Management System
+# PhoneCommander
 
 This is a Contact Management System built with a Node.js backend using Express and MongoDB, and a frontend using SwiftUI for macOS applications.
 
