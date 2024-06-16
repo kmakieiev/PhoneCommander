@@ -65,4 +65,3 @@ class AddContactViewController: NSViewController {
         dismiss(self)
     }
 }
-

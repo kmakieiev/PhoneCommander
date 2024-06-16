@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct AddContactView: View {
+struct EditContactView: View {
     @Binding var contact: Contact?
     var onSave: (Contact) -> Void
     
@@ -93,6 +93,14 @@ struct AddContactView: View {
             }
         }
         .padding()
+        .onAppear {
+            if let contact = contact {
+                name = contact.data["name"] as? String ?? ""
+                phone = contact.data["phone"] as? String ?? ""
+                dynamicFields = contact.data.filter { $0.key != "name" && $0.key != "phone" && $0.key != "_id" }
+                    .mapValues { $0 as? String ?? "" }
+            }
+        }
     }
     
     private func addCustomField() {

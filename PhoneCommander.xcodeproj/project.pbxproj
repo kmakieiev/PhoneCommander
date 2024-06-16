@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3126EF7F2C1F8A7800E65FA5 /* EditContactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3126EF7E2C1F8A7800E65FA5 /* EditContactView.swift */; };
 		317ED0302C1C7410007F3E7F /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 317ED02F2C1C7410007F3E7F /* ContentView.swift */; };
 		317ED0322C1C7411007F3E7F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 317ED0312C1C7411007F3E7F /* Assets.xcassets */; };
 		317ED0352C1C7411007F3E7F /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 317ED0342C1C7411007F3E7F /* Preview Assets.xcassets */; };
@@ -40,6 +41,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		3126EF7E2C1F8A7800E65FA5 /* EditContactView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditContactView.swift; sourceTree = "<group>"; };
 		317ED02A2C1C7410007F3E7F /* PhoneCommander.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PhoneCommander.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		317ED02F2C1C7410007F3E7F /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		317ED0312C1C7411007F3E7F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -118,6 +120,7 @@
 				317ED0582C1C7954007F3E7F /* AppDelegate.swift */,
 				317ED05A2C1C7975007F3E7F /* ViewController.swift */,
 				31865E862C1F17FC00C8616D /* MainApp.swift */,
+				3126EF7E2C1F8A7800E65FA5 /* EditContactView.swift */,
 			);
 			path = PhoneCommander;
 			sourceTree = "<group>";
@@ -279,6 +282,7 @@
 			files = (
 				31865E892C1F26D700C8616D /* ContactDetailsView.swift in Sources */,
 				317ED05D2C1C79E0007F3E7F /* AddContactViewController.swift in Sources */,
+				3126EF7F2C1F8A7800E65FA5 /* EditContactView.swift in Sources */,
 				31865E832C1F129200C8616D /* AddContactView.swift in Sources */,
 				31865E872C1F17FC00C8616D /* MainApp.swift in Sources */,
 				317ED0592C1C7954007F3E7F /* AppDelegate.swift in Sources */,

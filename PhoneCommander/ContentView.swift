@@ -4,7 +4,7 @@ struct ContentView: View {
     @State private var contacts: [Contact] = []
     @State private var currentContact: Contact? = nil
     @State private var isShowingAddContact = false
-    @State private var isEditing = false
+    @State private var isShowingEditContact = false
     @State private var isShowingDetails = false
     
     @State private var refreshInterval: TimeInterval = 5
@@ -34,8 +34,8 @@ struct ContentView: View {
                         .tag(contact)
                         .contextMenu {
                             Button("Edit") {
-                                isEditing = true
-                                isShowingAddContact = true
+                                isShowingEditContact = true
+                                currentContact = contact
                             }
                             Button("Delete") {
                                 deleteContact(contact: contact)
@@ -52,26 +52,22 @@ struct ContentView: View {
             
             HStack {
                 Button("Add") {
-                    isEditing = false
-                    currentContact = nil
                     isShowingAddContact = true
+                    currentContact = nil
                 }
             }
             .padding()
         }
         .sheet(isPresented: $isShowingAddContact) {
             AddContactView(contact: $currentContact) { contact in
-                if isEditing {
-                    if let index = contacts.firstIndex(where: { $0.id == contact.id }) {
-                        contacts[index] = contact
-                    }
-                } else {
-                    contacts.append(contact)
-                }
+                saveNewContact(contact)
                 isShowingAddContact = false
-                
-                // Save the contact to the server
-                saveContactToServer(contact)
+            }
+        }
+        .sheet(isPresented: $isShowingEditContact) {
+            EditContactView(contact: $currentContact) { contact in
+                updateContact(contact)
+                isShowingEditContact = false
             }
         }
         .sheet(isPresented: $isShowingDetails) {
@@ -132,10 +128,7 @@ struct ContentView: View {
                 return
             }
             
-            // Print request details
             print("DELETE Request URL: \(url)")
-            
-            // Print response details
             print("Response status code: \(httpResponse.statusCode)")
             if let responseData = data {
                 print("Response data: \(String(data: responseData, encoding: .utf8) ?? "No data")")
@@ -158,8 +151,7 @@ struct ContentView: View {
         task.resume()
     }
 
-
-    func saveContactToServer(_ contact: Contact) {
+    func saveNewContact(_ contact: Contact) {
         guard let url = URL(string: "http://localhost:3000/contacts") else {
             print("Invalid URL")
             return
@@ -167,67 +159,103 @@ struct ContentView: View {
         
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         
         do {
-            // Create an ordered dictionary-like structure
-            var contactData = [String: Any]()
-            contactData["name"] = contact.name
-            contactData["phone"] = contact.phone
-            
-            // Include dynamic fields directly in the contact data
-            for (key, value) in contact.data {
-                if key != "dynamicFields" {
-                    contactData[key] = value
-                }
-            }
-            
-            // Include dynamic fields from dynamicFields dictionary
-            if let dynamicFields = contact.data["dynamicFields"] as? [String: String] {
-                for (key, value) in dynamicFields {
-                    contactData[key] = value
-                }
-            }
-            
-            let jsonData = try JSONSerialization.data(withJSONObject: contactData, options: [])
+            let jsonData = try JSONSerialization.data(withJSONObject: contact.data)
             request.httpBody = jsonData
+            
+            let task = URLSession.shared.dataTask(with: request) { data, response, error in
+                if let error = error {
+                    print("Error saving contact: \(error.localizedDescription)")
+                    return
+                }
+                
+                if let httpResponse = response as? HTTPURLResponse {
+                    print("POST Request URL: \(url)")
+                    print("Response status code: \(httpResponse.statusCode)")
+                    if let responseData = data {
+                        print("Response data: \(String(data: responseData, encoding: .utf8) ?? "No data")")
+                    }
+                }
+                
+                if let data = data {
+                    do {
+                        if let jsonDict = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
+                            let savedContact = Contact(id: jsonDict["_id"] as? String ?? UUID().uuidString, data: jsonDict)
+                            DispatchQueue.main.async {
+                                self.contacts.append(savedContact)
+                            }
+                        }
+                    } catch {
+                        print("Error parsing saved contact: \(error.localizedDescription)")
+                    }
+                }
+            }
+            task.resume()
         } catch {
-            print("Error serializing contact data: \(error)")
+            print("Error serializing contact data: \(error.localizedDescription)")
+        }
+    }
+
+    func updateContact(_ contact: Contact) {
+        guard let url = URL(string: "http://localhost:3000/contacts/\(contact.id)") else {
+            print("Invalid URL")
             return
         }
         
-        let task = URLSession.shared.dataTask(with: request) { data, response, error in
-            if let error = error {
-                print("Error saving contact to server: \(error.localizedDescription)")
-                return
-            }
+        var request = URLRequest(url: url)
+        request.httpMethod = "PUT"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        do {
+            let jsonData = try JSONSerialization.data(withJSONObject: contact.data)
+            request.httpBody = jsonData
             
-            if let response = response as? HTTPURLResponse {
-                if response.statusCode == 201 {
-                    print("Contact saved successfully to server")
-                } else {
-                    print("Unexpected response: \(response.statusCode)")
+            let task = URLSession.shared.dataTask(with: request) { data, response, error in
+                if let error = error {
+                    print("Error updating contact: \(error.localizedDescription)")
+                    return
+                }
+                
+                if let httpResponse = response as? HTTPURLResponse {
+                    print("PUT Request URL: \(url)")
+                    print("Response status code: \(httpResponse.statusCode)")
+                    if let responseData = data {
+                        print("Response data: \(String(data: responseData, encoding: .utf8) ?? "No data")")
+                    }
+                }
+                
+                if let data = data {
+                    do {
+                        if let jsonDict = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
+                            let updatedContact = Contact(id: jsonDict["_id"] as? String ?? UUID().uuidString, data: jsonDict)
+                            DispatchQueue.main.async {
+                                if let index = self.contacts.firstIndex(where: { $0.id == contact.id }) {
+                                    self.contacts[index] = updatedContact
+                                }
+                            }
+                        }
+                    } catch {
+                        print("Error parsing updated contact: \(error.localizedDescription)")
+                    }
                 }
             }
+            task.resume()
+        } catch {
+            print("Error serializing contact data: \(error.localizedDescription)")
         }
-        task.resume()
+    }
+
+    func saveRefreshInterval() {
+        timer?.invalidate()
+        startFetchingContacts()
     }
     
     func startFetchingContacts() {
-        timer?.invalidate()
         fetchContacts()
         timer = Timer.scheduledTimer(withTimeInterval: refreshInterval, repeats: true) { _ in
             fetchContacts()
         }
-    }
-    
-    func saveRefreshInterval() {
-        startFetchingContacts()
-    }
-}
-
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
     }
 }

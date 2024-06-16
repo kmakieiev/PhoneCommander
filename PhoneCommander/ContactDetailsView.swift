@@ -1,17 +1,19 @@
 import SwiftUI
 
 struct ContactDetailsView: View {
-    let contact: Contact
-
+    var contact: Contact
+    
     var body: some View {
         VStack {
-            Text("Name: \(contact.name)")
-            if let phone = contact.phone {
-                Text("Phone: \(phone)")
+            Text("Name: \(contact.data["name"] as? String ?? "")")
+            Text("Phone: \(contact.data["phone"] as? String ?? "")")
+            
+            if let dynamicFields = contact.dynamicFields {
+                ForEach(Array(dynamicFields.keys.sorted()), id: \.self) { key in
+                    Text("\(key): \(dynamicFields[key] ?? "")")
+                }
             }
-            // Add more fields as needed
         }
         .padding()
-        .frame(minWidth: 200, minHeight: 150)
     }
 }
