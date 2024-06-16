@@ -11,6 +11,7 @@ struct ContentView: View {
     @State private var timer: Timer?
     
     let refreshIntervals: [TimeInterval] = [5, 10, 30, 60]
+    @State private var sortAscending = true // Track sorting direction
     
     var body: some View {
         VStack {
@@ -27,6 +28,14 @@ struct ContentView: View {
                 }
             }
             .padding()
+            
+            HStack {
+                Button("Sort \(sortAscending ? "↓" : "↑")") {
+                    sortContacts()
+                    sortAscending.toggle()
+                }
+                .padding()
+            }
             
             List(selection: $currentContact) {
                 ForEach($contacts) { $contact in
@@ -87,10 +96,19 @@ struct ContentView: View {
             if let data = data {
                 do {
                     if let jsonArray = try JSONSerialization.jsonObject(with: data, options: []) as? [[String: Any]] {
+                        var fetchedContacts = jsonArray.map { dict in
+                            Contact(id: dict["_id"] as? String ?? UUID().uuidString, data: dict)
+                        }
+                        
+                        // Sort fetched contacts based on current sort order
+                        if self.sortAscending {
+                            fetchedContacts.sort(by: { $0.name < $1.name })
+                        } else {
+                            fetchedContacts.sort(by: { $0.name > $1.name })
+                        }
+                        
                         DispatchQueue.main.async {
-                            self.contacts = jsonArray.map { dict in
-                                Contact(id: dict["_id"] as? String ?? UUID().uuidString, data: dict)
-                            }
+                            self.contacts = fetchedContacts
                         }
                     }
                 } catch {
@@ -257,5 +275,19 @@ struct ContentView: View {
         timer = Timer.scheduledTimer(withTimeInterval: refreshInterval, repeats: true) { _ in
             fetchContacts()
         }
+    }
+    
+    func sortContacts() {
+        if sortAscending {
+            contacts.sort(by: { $0.name < $1.name })
+        } else {
+            contacts.sort(by: { $0.name > $1.name })
+        }
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
     }
 }
