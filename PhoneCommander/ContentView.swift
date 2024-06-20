@@ -74,7 +74,7 @@ struct ContentView: View {
             }
         }
         .sheet(isPresented: $isShowingEditContact) {
-            EditContactView(contact: $currentContact) { contact in
+            EditContactView(contact: currentContact!) { contact in
                 updateContact(contact)
                 isShowingEditContact = false
             }

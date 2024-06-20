@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ContactDetailsView: View {
-    var contact: Contact
+    @ObservedObject var contact: Contact
     
     // Define the fields that should always be displayed first
     let staticFields: [String] = ["name", "phone"]

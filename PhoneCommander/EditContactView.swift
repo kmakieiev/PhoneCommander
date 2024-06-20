@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct EditContactView: View {
-    @Binding var contact: Contact?
+    @ObservedObject var contact: Contact
     var onSave: (Contact) -> Void
     
     @State private var name: String = ""
@@ -95,14 +95,16 @@ struct EditContactView: View {
         }
         .padding()
         .onAppear {
-            if let contact = contact {
-                name = contact.data["name"] as? String ?? ""
-                phone = contact.data["phone"] as? String ?? ""
-                dynamicFields = contact.data.filter { $0.key != "name" && $0.key != "phone" && $0.key != "_id" }
-                    .mapValues { $0 as? String ?? "" }
-            }
+            loadData()
         }
         .frame(width: 400, height: 350)
+    }
+    
+    private func loadData() {
+        name = contact.data["name"] as? String ?? ""
+        phone = contact.data["phone"] as? String ?? ""
+        dynamicFields = contact.data.filter { $0.key != "name" && $0.key != "phone" && $0.key != "_id" }
+            .mapValues { $0 as? String ?? "" }
     }
     
     private func addCustomField() {
@@ -131,18 +133,9 @@ struct EditContactView: View {
             newContactData[key] = value
         }
         
-        if var contact = contact {
-            contact.data = newContactData
-            onSave(contact)
-        } else {
-            let newContact = Contact(id: UUID().uuidString, data: newContactData)
-            onSave(newContact)
-        }
+        contact.data = newContactData
+        onSave(contact)
     }
 }
 
-struct EditContactView_Previews: PreviewProvider {
-    static var previews: some View {
-        EditContactView(contact: .constant(Contact(id: "1", data: ["name": "John Doe", "phone": "123-456-7890"])), onSave: { _ in })
-    }
-}
+

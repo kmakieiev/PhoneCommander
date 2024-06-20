@@ -1,8 +1,13 @@
 import Foundation
 
-struct Contact: Identifiable, Hashable {
+class Contact: ObservableObject, Identifiable, Hashable {
     var id: String
-    var data: [String: Any]
+    @Published var data: [String: Any]
+
+    init(id: String, data: [String: Any]) {
+        self.id = id
+        self.data = data
+    }
 
     var name: String {
         data["name"] as? String ?? "No Name"
